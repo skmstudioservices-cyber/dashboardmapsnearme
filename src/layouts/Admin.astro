@@ -1,0 +1,47 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  active?: string;
+}
+const { title, active = '' } = Astro.props;
+const user = Astro.locals.user;
+const nav = [
+  { href: '/', label: 'Overview', key: 'home' },
+  { href: '/businesses', label: 'Businesses', key: 'businesses' },
+  { href: '/claims', label: 'Claims', key: 'claims' },
+  { href: '/feedback', label: 'Feedback', key: 'feedback' },
+  { href: '/keywords', label: 'Search Keywords', key: 'keywords' },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} — MapsNearMe Dashboard</title>
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="logo">maps<span>nearme</span> admin</div>
+        <nav>
+          {nav.map((n) => (
+            <a href={n.href} class={active === n.key ? 'active' : ''}>{n.label}</a>
+          ))}
+        </nav>
+        <div class="spacer"></div>
+        <div class="whoami">{user?.email ?? ''}</div>
+        <form method="post" action="/api/logout" style="padding: 10px 20px 0;">
+          <button class="btn ghost" type="submit">Log out</button>
+        </form>
+      </aside>
+      <main class="main">
+        <div class="topbar"><h1>{title}</h1></div>
+        <slot />
+      </main>
+    </div>
+  </body>
+</html>
