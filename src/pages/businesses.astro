@@ -1,0 +1,53 @@
+---
+import Admin from '../layouts/Admin.astro';
+import { listBusinesses, listCities } from '../lib/db';
+
+export const prerender = false;
+
+const env = Astro.locals.runtime.env;
+const token = Astro.cookies.get('skb_at')?.value ?? '';
+const city = Astro.url.searchParams.get('city') ?? '';
+
+const [businesses, cities] = await Promise.all([
+  listBusinesses(env, token, city || undefined),
+  listCities(env, token),
+]);
+---
+<Admin title="Businesses" active="businesses">
+  <form method="get" style="display:flex; gap:10px; align-items:center; margin-bottom:18px; max-width:420px;">
+    <select name="city">
+      <option value="">All cities ({cities.length})</option>
+      {cities.map((c) => (
+        <option value={c.slug} selected={city === c.slug}>{c.name}{c.state ? ` (${c.state})` : ''}</option>
+      ))}
+    </select>
+    <button class="btn ghost" type="submit">Filter</button>
+  </form>
+
+  <div class="panel">
+    <h2>{city ? `Businesses — ${cities.find((c) => c.slug === city)?.name ?? city}` : `All businesses (${businesses.length})`}</h2>
+    {businesses.length ? (
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>City</th><th>Category</th><th>Rating</th><th>Verified</th><th>Phone</th></tr>
+          </thead>
+          <tbody>
+            {businesses.map((b) => (
+              <tr>
+                <td><strong>{b.name}</strong></td>
+                <td>{b.city?.name ?? '—'}</td>
+                <td>{b.category?.name ?? '—'}</td>
+                <td>{b.avg_rating ?? '—'}</td>
+                <td>{b.is_verified ? <span class="pill ok">Yes</span> : <span class="pill mut">No</span>}</td>
+                <td>{b.phone ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <div class="empty">No businesses found for this filter.</div>
+    )}
+  </div>
+</Admin>
