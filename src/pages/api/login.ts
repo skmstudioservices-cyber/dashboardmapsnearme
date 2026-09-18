@@ -3,6 +3,8 @@ import { AT_COOKIE, RT_COOKIE, loginWithPassword } from '../../lib/auth';
 
 export const prerender = false;
 
+const BASE = (import.meta.env.BASE_URL ?? '').replace(/\/$/, '');
+
 export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }) => {
   const env = locals.runtime?.env;
   const form = await request.formData().catch(() => null);
@@ -10,12 +12,12 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }
   const password = String(form?.get('password') ?? '');
 
   if (!env?.SUPABASE_URL || !email || !password) {
-    return redirect('/login?e=1', 302);
+    return redirect(`${BASE}/login?e=1`, 302);
   }
 
   const session = await loginWithPassword(env, email, password);
   if (!session) {
-    return redirect('/login?e=1', 302);
+    return redirect(`${BASE}/login?e=1`, 302);
   }
 
   const secure = url.protocol === 'https:';
@@ -34,5 +36,5 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }
     maxAge: 60 * 60 * 24 * 7,
   });
 
-  return redirect('/', 302);
+  return redirect(`${BASE}/`, 302);
 };
