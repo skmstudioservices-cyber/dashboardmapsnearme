@@ -1,0 +1,69 @@
+---
+import Admin from '../layouts/Admin.astro';
+import { listPrivateFeedback, listSiteFeedback } from '../lib/db';
+
+export const prerender = false;
+
+const env = Astro.locals.runtime.env;
+const token = Astro.cookies.get('skb_at')?.value ?? '';
+const [pf, sf] = await Promise.all([
+  listPrivateFeedback(env, token),
+  listSiteFeedback(env, token),
+]);
+const fmtDate = (s?: string) => (s ?? '').slice(0, 16).replace('T', ' ');
+---
+<Admin title="Feedback" active="feedback">
+  <div class="panel">
+    <h2>Private feedback — business owners ({pf.length})</h2>
+    {pf.length ? (
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>Business</th><th>Rating</th><th>Message</th><th>From</th><th>Status</th><th>When</th></tr>
+          </thead>
+          <tbody>
+            {pf.map((f) => (
+              <tr>
+                <td><strong>{f.business?.name ?? '—'}</strong></td>
+                <td>{f.rating ?? '—'}</td>
+                <td>{f.message ? String(f.message).slice(0, 140) : '—'}</td>
+                <td>{f.reviewer_name ?? f.reviewer_email ?? '—'}</td>
+                <td>{f.status ? <span class="pill mut">{f.status}</span> : '—'}</td>
+                <td>{fmtDate(f.created_at)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <div class="empty">No private feedback yet.</div>
+    )}
+  </div>
+
+  <div class="panel">
+    <h2>Site feedback — visitors ({sf.length})</h2>
+    {sf.length ? (
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>Type</th><th>Message</th><th>Contact</th><th>Page</th><th>Status</th><th>When</th></tr>
+          </thead>
+          <tbody>
+            {sf.map((f) => (
+              <tr>
+                <td>{f.type ?? '—'}</td>
+                <td>{f.message ? String(f.message).slice(0, 140) : '—'}</td>
+                <td>{f.contact_email ?? '—'}</td>
+                <td>{f.page_url ? String(f.page_url).slice(0, 60) : '—'}</td>
+                <td>{f.status ? <span class="pill mut">{f.status}</span> : '—'}</td>
+                <td>{fmtDate(f.created_at)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <div class="empty">No site feedback yet.</div>
+    )}
+  </div>
+</Admin>
