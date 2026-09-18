@@ -1,0 +1,62 @@
+---
+import Admin from '../layouts/Admin.astro';
+import { getStats } from '../lib/db';
+
+export const prerender = false;
+
+const env = Astro.locals.runtime.env;
+const token = Astro.cookies.get('skb_at')?.value ?? '';
+const stats = await getStats(env, token);
+
+const recent = await env.SEO_DB.prepare(
+  `SELECT site, term, results, created_at FROM internal_search ORDER BY created_at DESC LIMIT 12`
+).all();
+
+const cards = [
+  { label: 'Businesses', num: stats.businesses },
+  { label: 'Cities', num: stats.cities },
+  { label: 'Categories', num: stats.categories },
+  { label: 'Claim requests', num: stats.claims },
+  { label: 'Private feedback', num: stats.privateFeedback },
+  { label: 'Site feedback', num: stats.siteFeedback },
+  { label: 'Reviews', num: stats.reviews },
+];
+const fmtDate = (s: unknown) => String(s ?? '').slice(0, 16).replace('T', ' ');
+---
+<Admin title="Overview" active="home">
+  <div class="cards">
+    {cards.map((c) => (
+      <div class={`card ${c.num < 0 ? 'neg' : ''}`}>
+        <div class="num">{c.num < 0 ? '—' : c.num.toLocaleString('en-IN')}</div>
+        <div class="label">{c.label}</div>
+      </div>
+    ))}
+  </div>
+
+  <div class="panel">
+    <h2>Latest internal searches (both sites)</h2>
+    {recent.results?.length ? (
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>Site</th><th>Term</th><th>Results</th><th>When</th></tr>
+          </thead>
+          <tbody>
+            {recent.results.map((row: any) => (
+              <tr>
+                <td>{row.site}</td>
+                <td><strong>{row.term}</strong></td>
+                <td>{row.results}</td>
+                <td>{fmtDate(row.created_at)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <div class="empty">No searches logged yet.</div>
+    )}
+  </div>
+
+  <p class="hint">Counts come straight from Supabase with RLS — numbers here always match the live database.</p>
+</Admin>
