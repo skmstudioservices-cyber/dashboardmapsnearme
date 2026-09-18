@@ -1,0 +1,42 @@
+---
+import Admin from '../layouts/Admin.astro';
+import { listClaims } from '../lib/db';
+
+export const prerender = false;
+
+const env = Astro.locals.runtime.env;
+const token = Astro.cookies.get('skb_at')?.value ?? '';
+const claims = await listClaims(env, token);
+const fmtDate = (s?: string) => (s ?? '').slice(0, 16).replace('T', ' ');
+---
+<Admin title="Claim requests" active="claims">
+  <div class="panel">
+    <h2>Business ownership claims ({claims.length})</h2>
+    {claims.length ? (
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>Business</th><th>Status</th><th>Proof</th><th>Link</th><th>When</th></tr>
+          </thead>
+          <tbody>
+            {claims.map((c) => (
+              <tr>
+                <td><strong>{c.business?.name ?? '—'}</strong></td>
+                <td>
+                  {c.status === 'approved' ? <span class="pill ok">approved</span>
+                    : c.status === 'rejected' ? <span class="pill mut">rejected</span>
+                    : <span class="pill warn">{c.status ?? 'pending'}</span>}
+                </td>
+                <td>{c.proof_text ? String(c.proof_text).slice(0, 120) : '—'}</td>
+                <td>{c.proof_url ? <a href={c.proof_url} target="_blank" rel="noopener">open</a> : '—'}</td>
+                <td>{fmtDate(c.created_at)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <div class="empty">No claim requests yet.</div>
+    )}
+  </div>
+</Admin>
