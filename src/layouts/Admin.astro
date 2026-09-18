@@ -7,12 +7,13 @@ interface Props {
 }
 const { title, active = '' } = Astro.props;
 const user = Astro.locals.user;
+const BASE = (import.meta.env.BASE_URL ?? '').replace(/\/$/, '');
 const nav = [
-  { href: '/', label: 'Overview', key: 'home' },
-  { href: '/businesses', label: 'Businesses', key: 'businesses' },
-  { href: '/claims', label: 'Claims', key: 'claims' },
-  { href: '/feedback', label: 'Feedback', key: 'feedback' },
-  { href: '/keywords', label: 'Search Keywords', key: 'keywords' },
+  { href: `${BASE}/`, label: 'Overview', key: 'home' },
+  { href: `${BASE}/businesses`, label: 'Businesses', key: 'businesses' },
+  { href: `${BASE}/claims`, label: 'Claims', key: 'claims' },
+  { href: `${BASE}/feedback`, label: 'Feedback', key: 'feedback' },
+  { href: `${BASE}/keywords`, label: 'Search Keywords', key: 'keywords' },
 ];
 ---
 <!doctype html>
@@ -34,7 +35,7 @@ const nav = [
         </nav>
         <div class="spacer"></div>
         <div class="whoami">{user?.email ?? ''}</div>
-        <form method="post" action="/api/logout" style="padding: 10px 20px 0;">
+        <form method="post" action={`${BASE}/api/logout`} style="padding: 10px 20px 0;">
           <button class="btn ghost" type="submit">Log out</button>
         </form>
       </aside>
