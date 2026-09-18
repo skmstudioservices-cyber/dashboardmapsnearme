@@ -1,0 +1,28 @@
+{
+  "name": "dashboardmapsnearme",
+  "main": "dist/_worker.js/index.js",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist"
+  },
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true,
+      "head_sampling_rate": 1
+    }
+  },
+  "d1_databases": [
+    {
+      "binding": "SEO_DB",
+      "database_name": "seo-keywords-db",
+      "database_id": "b3d0300d-7362-489e-91e9-d2dfece64b63"
+    }
+  ],
+  "vars": {
+    "SUPABASE_URL": "https://timnrnmmmmuqmcnuaend.supabase.co",
+    "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpbW5ybm1tbW11cW1jbnVhZW5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMDAyMzUsImV4cCI6MjA4ODU3NjIzNX0.Aw4xpM7GvTsgZA34Lp_qGYCbSTDH6jrcS5BHV0UPLRE"
+  }
+}
