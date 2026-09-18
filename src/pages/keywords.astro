@@ -1,0 +1,82 @@
+---
+import Admin from '../layouts/Admin.astro';
+
+export const prerender = false;
+
+const db = Astro.locals.runtime.env.SEO_DB;
+
+const top = await db.prepare(
+  `SELECT site, term, COUNT(*) AS n, MAX(created_at) AS last_seen
+   FROM internal_search
+   GROUP BY site, term
+   ORDER BY n DESC
+   LIMIT 50`
+).all();
+
+const zero = await db.prepare(
+  `SELECT site, term, COUNT(*) AS n
+   FROM internal_search
+   WHERE results = 0
+   GROUP BY site, term
+   ORDER BY n DESC
+   LIMIT 50`
+).all();
+
+const fmtDate = (s: unknown) => String(s ?? '').slice(0, 10);
+const rows = (r: unknown[]) => (Array.isArray(r) ? r : []);
+---
+<Admin title="Search keywords" active="keywords">
+  <div class="panel">
+    <h2>Top searched terms (digipincode + mapsnearme)</h2>
+    {rows(top.results).length ? (
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Site</th><th>Term</th><th>Searches</th><th>Last seen</th></tr>
+          </thead>
+          <tbody>
+            {rows(top.results).map((row: any, i: number) => (
+              <tr>
+                <td>{i + 1}</td>
+                <td>{row.site}</td>
+                <td><strong>{row.term}</strong></td>
+                <td>{row.n}</td>
+                <td>{fmtDate(row.last_seen)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <div class="empty">No search data yet.</div>
+    )}
+  </div>
+
+  <div class="panel">
+    <h2>Zero-result searches — content gaps</h2>
+    <p class="hint" style="padding: 10px 18px 0; margin: 0;">
+      Ye terms log ho rahe hain par results nahi mil rahe — inke liye content/businesses add karo.
+    </p>
+    {rows(zero.results).length ? (
+      <div class="tbl-wrap" style="margin-top: 8px;">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Site</th><th>Term</th><th>Misses</th></tr>
+          </thead>
+          <tbody>
+            {rows(zero.results).map((row: any, i: number) => (
+              <tr>
+                <td>{i + 1}</td>
+                <td>{row.site}</td>
+                <td><strong>{row.term}</strong></td>
+                <td>{row.n}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <div class="empty">No zero-result searches — sab queries ko results mil rahe hain.</div>
+    )}
+  </div>
+</Admin>
