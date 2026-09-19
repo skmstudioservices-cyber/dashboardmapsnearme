@@ -13,7 +13,7 @@ const nav = [
   { href: `${BASE}/businesses`, label: 'Businesses', key: 'businesses' },
   { href: `${BASE}/claims`, label: 'Claims', key: 'claims' },
   { href: `${BASE}/feedback`, label: 'Feedback', key: 'feedback' },
-  { href: `${BASE}/keywords`, label: 'Search Keywords', key: 'keywords' },
+  { href: `${BASE}/keywords`, label: 'Keywords', key: 'keywords' },
 ];
 ---
 <!doctype html>
@@ -22,27 +22,41 @@ const nav = [
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>{title} — MapsNearMe Dashboard</title>
+    <title>{title} — mapsnearme Admin</title>
   </head>
   <body>
-    <div class="shell">
-      <aside class="sidebar">
-        <div class="logo">maps<span>nearme</span> admin</div>
+    <header class="site-header">
+      <div class="container inner">
+        <a class="brand" href={`${BASE}/`}>
+          <span class="mark">M</span>
+          <span>maps<b>near me</b></span>
+          <span class="admin-tag">Admin</span>
+        </a>
         <nav>
           {nav.map((n) => (
-            <a href={n.href} class={active === n.key ? 'active' : ''}>{n.label}</a>
+            <a class={`link${active === n.key ? ' active' : ''}`} href={n.href}>{n.label}</a>
           ))}
+          <span class="whoami">{user?.email ?? ''}</span>
+          <form method="post" action={`${BASE}/api/logout`} class="logout-form">
+            <button class="btn btn-ghost" type="submit">Log out</button>
+          </form>
         </nav>
-        <div class="spacer"></div>
-        <div class="whoami">{user?.email ?? ''}</div>
-        <form method="post" action={`${BASE}/api/logout`} style="padding: 10px 20px 0;">
-          <button class="btn ghost" type="submit">Log out</button>
-        </form>
-      </aside>
-      <main class="main">
-        <div class="topbar"><h1>{title}</h1></div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="section">
+        <p class="eyebrow">Admin</p>
+        <h1 class="page-title">{title} <span class="accent">·</span></h1>
         <slot />
-      </main>
-    </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container foot-bottom">
+        <span>mapsnearme admin — internal tool</span>
+        <span>© {new Date().getFullYear()} mapsnearme</span>
+      </div>
+    </footer>
   </body>
 </html>
