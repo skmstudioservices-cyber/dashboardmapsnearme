@@ -7,19 +7,20 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Check proxy + direct URLs (content-level)
+      - name: Check proxy + direct URLs (content-level, dark theme markers)
         run: |
           set -e
           check() {
             U="$1"
             CODE=$(curl -sL -o /tmp/h.html -w "%{http_code}" --max-time 30 "$U?cb=$(date +%s)")
             echo "URL: $U -> HTTP $CODE"
-            echo "  login-marker: $(grep -c 'MapsNearMe Dashboard' /tmp/h.html || true)"
-            echo "  sub-marker: $(grep -c 'Admin access only' /tmp/h.html || true)"
+            echo "  admin-title: $(grep -c 'mapsnearme Admin' /tmp/h.html || true)"
+            echo "  gold-btn:   $(grep -c 'btn-gold' /tmp/h.html || true)"
+            echo "  header:    $(grep -c 'site-header' /tmp/h.html || true)"
+            echo "  old-light: $(grep -c 'MapsNearMe Dashboard' /tmp/h.html || true)"
           }
           check "https://mapsnearme.india-in.workers.dev/dashboard"
           check "https://mapsnearme.india-in.workers.dev/dashboard/"
           check "https://dashboardmapsnearme.pages.dev/dashboard/"
           CODE=$(curl -sL -o /tmp/p.html -w "%{http_code}" --max-time 30 "https://mapsnearme.india-in.workers.dev/?cb=$(date +%s)")
           echo "public-site -> HTTP $CODE"
-          echo "  public-marker: $(grep -c 'Find Verified Businesses' /tmp/p.html || true)"
